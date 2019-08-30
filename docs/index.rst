@@ -1,8 +1,8 @@
 ===============================
-marshmallow-dataclass-generator
+auto-class
 ===============================
 
-This is the documentation of **marshmallow-dataclass-generator**.
+This is the documentation of **auto-class**.
 
 .. note::
 

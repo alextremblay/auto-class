@@ -8,8 +8,8 @@ PAPER         =
 BUILDDIR      = _build
 AUTODOCDIR    = api
 AUTODOCBUILD  = sphinx-apidoc
-PROJECT       = marshmallow-dataclass-generator
-MODULEDIR     = ../src/marshmallow_dataclass_generator
+PROJECT       = auto-class
+MODULEDIR     = ../src/auto_class
 
 # User-friendly check for sphinx-build
 ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $?), 1)

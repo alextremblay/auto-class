@@ -1,7 +1,7 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
-source = marshmallow_dataclass_generator
+source = auto_class
 # omit = bad_file.py
 
 [paths]
