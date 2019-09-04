@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* Alex Tremblay <alex.tremblay@utoronto.ca>
+* Alex Tremblay <alex@tremblay.in>

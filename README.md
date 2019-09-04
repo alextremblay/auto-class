@@ -457,9 +457,10 @@ DataClass('DataClass', {
 ## Limitations
 Currently, the following limitations apply:
  - Cannot support shared dataclasses:
-     see [docs/shared_dataclasses](./docs/shared_dataclasses.md) for more info
- - Can only support `Union` types where all unioned types are **Scalar** values. (ie. can't support `Union[str,DataClass]`, `Union[int, List[int]]`, etc)
-
+     See [shared_dataclasses](./docs/implementation_details/shared_dataclasses.md) for more info
+ - Cannot support `HashTable`s whose keys are `Union`s of multiple types 
+     You can have HashTables whose keys are strings, you can have HashTables whose keys are integers, but you can't 
+     have HashTables whose keys might be strings *or* integers. 
 
 ## TODO
 Here is a list of features that I am either actively implementing in another branch, or hope to add to the library in the future:

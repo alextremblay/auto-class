@@ -2,7 +2,7 @@
 auto-class
 ===============================
 
-This is the documentation of **auto-class**.
+.. include:: ../README.md
 
 .. note::
 
