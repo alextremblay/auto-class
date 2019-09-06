@@ -393,64 +393,115 @@ DataClass:
 ```
 Will generate the following python code:
 ```python
-from typing import List, Any, Union, Optional, ClassVar, Type
+from typing import List, Any, Union, Optional, Dict, ClassVar, Type
 from dataclasses import field
 from marshmallow import Schema
 from marshmallow_dataclass import dataclass
 
-# TODO: flesh this out
+
+@dataclass
+class DataClass:
+    a_field: str = field(default_factory=str)
+    a_default_value: str = 'a default value'
+    a_number: int = field(default_factory=int)
+    a_list: List[str,int] = field(default_factory=list)
+    an_optional_value: Any = None
+    a_union: Union[str,int] = field(default_factory=str)
+    a_key_with_spaces: str = field(default_factory=str, metadata=dict(data_key='A Key With Spaces'))
+    optional_field_with_type: Optional[str] = None
+    implicit_optional: Optional[str] = None
+    an_optional_union: Optional[Union[str,int]] = None
+    optional_field_with_default: str = 'hello'
+    allow_missing: str = field(default_factory=str, metadata=dict(default=str, missing=str, required=False))
+    optional_and_allow_missing: Optional[str] = field(default=None, metadata=dict(default=None, missing=None, required=False))
+    custom_field: str = field(default='email@address.com', metadata=dict(marshmallow_field=Email))
+
+    @dataclass
+    class SubClass:
+        subkey: str = field(default_factory=str)
+        another_subkey: str = field(default_factory=str)
+
+        @dataclass
+        class SubSubClass:
+            so_nested: bool = True
+            much_wow: bool = True
+            Schema: ClassVar[Type[Schema]] = Schema
+
+        sub_sub_class: SubSubClass = field(default_factory=SubSubClass)
+        Schema: ClassVar[Type[Schema]] = Schema
+
+    sub_class: SubClass = field(default_factory=SubClass)
+
+    @dataclass
+    class OptionalSubClass:
+        subkey: str = field(default_factory=str)
+        another_subkey: str = field(default_factory=str)
+        Schema: ClassVar[Type[Schema]] = Schema
+
+    optional_sub_class: Optional[OptionalSubClass] = None
+    implicit_hashtable: Dict[int,int] = field(default_factory=dict)
+    explicit_hashtable: Dict[str,Union[int,str,bool]] = field(default_factory=dict)
+
+    @dataclass
+    class NamedClass:
+        a_subkey: int = 1
+        one_more: str = 'hello'
+        Schema: ClassVar[Type[Schema]] = Schema
+
+    a_class_list: List[NamedClass] = field(default_factory=list)
+    Schema: ClassVar[Type[Schema]] = Schema
 ```
 
 as a side note, for those interested in the nuts and bolts, what happens behind the scenes is that the input manifest 
 is converted into an intermediate representation, which is then used to generate the actual python code for the 
 dataclass definitions. The above example produces the following intermediate representation:
 ```python
-from auto_class.intermediate_representation import DataClass, Field, Scalar, Sequence, HashTable, Union
+from auto_class.intermediate_representation import DataClass, Member, Type, Sequence, HashTable
 
-DataClass('DataClass', {
-    Field('a_field', value=Scalar(type='str')),
-    Field('a_default_value', value=Scalar('str', default='a default value')),
-    Field('a_number', Scalar('int')),
-    Field('a_list', Sequence('list', values=[
-        Scalar('str', default='string'),
-        Scalar('int', default=2)
-    ])),
-    Field('an_optional_value', Scalar('None')),
-    Field('a_union', Union([
-        Scalar('str'),
-        Scalar('int')
-    ])),
-    Field('a_key_with_spaces', data_key='A Key With Spaces', value=Scalar('str')),
-    Field('optional_field_with_type', Scalar('str', optional=True)),
-    Field('implicit_optional', Scalar('str', optional=True)),
-    Field('an_optional_union', Union(optional=True, values=[Scalar('str'), Scalar('int')])),
-    Field('optional_field_with_default', Scalar('str', optional=True, default='hello')),
-    Field('allow_missing', Scalar('str', allow_missing=True)),
-    Field('optional_and_allow_missing', Scalar('str', optional=True, allow_missing=True)),
-    Field('custom_field', Scalar('str', default='email@address.com', mm_field='Email')),
-    Field('sub_class', DataClass('SubClass', {
-        Field('subkey', Scalar('str')),
-        Field('another_subkey', Scalar('str')),
-        Field('sub_sub_class', DataClass('SubSubClass', {
-            Field('so_nested', Scalar('bool', default=True)),
-            Field('so_nested', Scalar('bool', default=True)),
-        })),
-    })),
-    Field('optional_sub_class', DataClass('OptionalSubClass', optional=True, fields={
-        Field('subkey', Scalar('str')),
-        Field('another_subkey', Scalar('str')),
-    })),
-    Field('implicit_hashtable', HashTable(key=Scalar('int'), values=[Scalar('int')])),
-    Field('explicit_hashtable', HashTable(key=Scalar('str'), values=[
-        Scalar('int'), Scalar('str'), Scalar('bool')
-    ])),
-    Field('a_class_list', Sequence('list', values=[
-        DataClass('NamedClass', {
-            Field('a_subkey', Scalar('int', default=1)),
-            Field('one_more', Scalar('str', default='hello'))
-        })
-    ]))
-})
+DataClass('DataClass', [
+    Member('a_field', [Type('str')]),
+    Member('a_default_value', [Type('str')], default='a default value'),
+    Member('a_number', [Type('int')]),
+    Member('a_list', [Sequence('list', types=[
+        Type('str'),
+        Type('int')
+    ])]),
+    Member('an_optional_value', [Type('None')]),
+    Member('a_union', [
+        Type('str'),
+        Type('int')
+    ]),
+    Member('A Key With Spaces', [Type('str')]),
+    Member('optional_field_with_type', [Type('str'), Type('None')]),
+    Member('implicit_optional', [Type('str'), Type('None')]),
+    Member('an_optional_union', [Type('str'), Type('int'), Type('None')]),
+    Member('optional_field_with_default', [Type('str')], default='hello'),
+    Member('allow_missing', [Type('str')], optional=True),
+    Member('optional_and_allow_missing', [Type('str'), Type('None')], optional=True),
+    Member('custom_field', [Type('str')], default='email@address.com', custom_field='Email'),
+    Member('sub_class', [DataClass('SubClass', [
+        Member('subkey', [Type('str')]),
+        Member('another_subkey', [Type('str')]),
+        Member('sub_sub_class', [DataClass('SubSubClass', [
+            Member('so_nested', [Type('bool')], default=True),
+            Member('much_wow', [Type('bool')], default=True),
+        ])]),
+    ])]),
+    Member('optional_sub_class', [Type('None'), DataClass('OptionalSubClass', [
+        Member('subkey', [Type('str')]),
+        Member('another_subkey', [Type('str')]),
+    ])]),
+    Member('implicit_hashtable', [HashTable(key=Type('int'), values=[Type('int')])]),
+    Member('explicit_hashtable', [HashTable(key=Type('str'), values=[
+        Type('int'), Type('str'), Type('bool')
+    ])]),
+    Member('a_class_list', [Sequence('list', [
+        DataClass('NamedClass', [
+            Member('a_subkey', [Type('int')], default=1),
+            Member('one_more', [Type('str')], default='hello')
+        ])
+    ])])
+])
 ```
 
 
@@ -461,6 +512,10 @@ Currently, the following limitations apply:
  - Cannot support `HashTable`s whose keys are `Union`s of multiple types 
      You can have HashTables whose keys are strings, you can have HashTables whose keys are integers, but you can't 
      have HashTables whose keys might be strings *or* integers. 
+ - Cannot support a `Union` of multiple `HashTable`s
+     You can have a dataclass member whose type can be a string or a `HashTable` of strings, you can have a dataclass
+     member whose type can be a integer or a `HashTable` of integers, but you cannot have a dataclass member whose
+     type can be a `HashTable` of strings or a `HashTable` of integers
 
 ## TODO
 Here is a list of features that I am either actively implementing in another branch, or hope to add to the library in the future:
@@ -650,12 +705,15 @@ class MyDataClass:
         subkey: str = field(default_factory=str)
         another_subkey: str = field(default_factory=str)
         
+        
         @dataclass
         class SubSubClass:
             so_nested: bool = field(default_factory=bool)
             much_wow: bool = field(default_factory=bool)
+            Schema: ClassVar[Type[Schema]] = Schema
         
         sub_sub_class: SubSubClass = field(default_factory=SubSubClass)
+        Schema: ClassVar[Type[Schema]] = Schema
         
     sub_class: SubClass = field(default_factory=SubClass)
     
@@ -663,8 +721,10 @@ class MyDataClass:
     class AClassList:
         a_subkey: int = field(default_factory=int)
         one_more: str = field(default='hello')
+        Schema: ClassVar[Type[Schema]] = Schema
         
     a_class_list: List[AClassList] = field(default_factory=list)
+    Schema: ClassVar[Type[Schema]] = Schema
 ```
 It's definitely better, but still verbose. We're no longer repetitively writing out field names again and again, but
 we're still repetitively writing out types and a lot of boilerplate, which is not very fun.
