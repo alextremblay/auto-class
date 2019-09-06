@@ -1,4 +1,5 @@
-from auto_class.generate import py_dataclass as pd
+from auto_class.backends import py_dataclass as pd
+from auto_class.intermediate_representation import ResultSet
 from textwrap import dedent
 
 import pytest
@@ -278,7 +279,8 @@ def test_generate_module_code(py_dataclass_test_data):
 
     preamble = "from marshmallow.fields import Email\n"
 
-    result = pd.generate_dataclass_definitions([dataclass], preamble)
+    resultset = ResultSet([dataclass], preamble)
+    result = pd.generate_dataclass_definitions(resultset)
 
     print(f"Data in: \n\t{dataclass}\nResult:\n\t{result}\n")
 

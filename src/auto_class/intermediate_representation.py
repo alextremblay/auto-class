@@ -4,6 +4,13 @@ from typing import List, Any, Optional
 
 @dataclass()
 class Type:
+    """
+    Abstract base representation of a data type.
+    All intermediate representations of data types will either be instances of Type, or instances of subclasses of Type.
+    All scalar data types are instances of Type (ex. Type('str') represents a `str`, Type('float') represents a `float`
+    All complex data types are instances of subclasses of Type (ex Sequence('list', types=[Type('str')]) represents a
+    list which holds strings... a List[str])
+    """
     name: str
 
     def __hash__(self):
@@ -50,3 +57,15 @@ class Member:
 
     custom_field: Optional[str] = None
     # custom marshmallow serializer field to use for handling this member
+
+
+@dataclass
+class ResultSet:
+    """
+    A ResultSet is an object which holds all the data and metadata necessary to generate a complete output artifact
+    for a given backend (all the info necessary to create a python module using the py_dataclass backend, for example
+    """
+    dataclasses: List[DataClass]
+
+    preamble: str = ''
+    # preamble is the stuff that goes in between the import statements

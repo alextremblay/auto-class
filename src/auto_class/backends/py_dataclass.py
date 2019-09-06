@@ -286,15 +286,15 @@ def from_ir(base):
     return new
 
 
-def generate_dataclass_definitions(dataclasses: List[ir.DataClass], preamble='') -> str:
-    dataclasses = [from_ir(dc) for dc in dataclasses]
+def generate_dataclass_definitions(rs: ir.ResultSet) -> str:
+    dataclasses = [from_ir(dc) for dc in rs.dataclasses]
 
     # We need to include import statements at the top of our result stack, but we need to generate dataclass definitions
     # in order to populate the import statements.
     # To get around this, we'll build our result stack in reverse
     result = [dc.definition for dc in dataclasses]
-    if preamble:
-        result.insert(0, preamble)
+    if rs.preamble:
+        result.insert(0, rs.preamble)
     result.insert(0, ImportRegistry.get_import_stmts())
 
     return '\n'.join(result)
