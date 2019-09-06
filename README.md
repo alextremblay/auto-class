@@ -248,6 +248,10 @@ The YAML manifest is a YAML document with the following rules:
 ## A Complete Example:
 
 ```yaml
+
+preamble: |
+    from marshmallow.fields import Email
+
 DataClass:
 # ^^^^^^^ 
 # All top-level keys will be used as names for dataclass definitions, 
@@ -398,6 +402,7 @@ from dataclasses import field
 from marshmallow import Schema
 from marshmallow_dataclass import dataclass
 
+from marshmallow.fields import Email
 
 @dataclass
 class DataClass:
